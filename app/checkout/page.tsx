@@ -43,6 +43,20 @@ export default function CheckoutScreen() {
   const activeItems = groupedItems[activeSellerId] || [];
 
   useEffect(() => {
+    if (user) {
+      setAddress((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.name || '',
+        phone: prev.phone || user.phone || '',
+        email: prev.email || user.email || '',
+        city: prev.city || user.location?.city || '',
+        state: prev.state || user.location?.state || '',
+        country: prev.country || user.location?.country || '',
+      }));
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (items.length === 0) {
       router.push('/cart');
       return;
@@ -67,7 +81,7 @@ export default function CheckoutScreen() {
   const handleAutofillPastAddress = () => {
     if (pastAddress) {
       setAddress({
-        fullName: pastAddress.fullName || user?.name || '',
+        fullName: pastAddress.fullName || pastAddress.name || user?.name || '',
         phone: pastAddress.phone || user?.phone || '',
         email: pastAddress.email || user?.email || '',
         street: pastAddress.street || '',
@@ -82,13 +96,20 @@ export default function CheckoutScreen() {
 
   const validateForm = () => {
     const tempErrors: Record<string, string> = {};
-    if (!address.fullName.trim()) tempErrors.fullName = t('Full Name is required');
-    if (!address.phone.trim()) tempErrors.phone = t('Phone Number is required');
-    if (!address.street.trim()) tempErrors.street = t('Street Address is required');
-    if (!address.city.trim()) tempErrors.city = t('City is required');
-    if (!address.country.trim()) tempErrors.country = t('Country is required');
+    const fullNameVal = (address.fullName || '').trim();
+    const phoneVal = (address.phone || '').trim();
+    const streetVal = (address.street || '').trim();
+    const cityVal = (address.city || '').trim();
+    const countryVal = (address.country || '').trim();
+    const emailVal = (address.email || '').trim();
 
-    if (address.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address.email.trim())) {
+    if (!fullNameVal) tempErrors.fullName = t('Full Name is required');
+    if (!phoneVal) tempErrors.phone = t('Phone Number is required');
+    if (!streetVal) tempErrors.street = t('Street Address is required');
+    if (!cityVal) tempErrors.city = t('City is required');
+    if (!countryVal) tempErrors.country = t('Country is required');
+
+    if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
       tempErrors.email = t('Please enter a valid email address');
     }
 
@@ -111,7 +132,17 @@ export default function CheckoutScreen() {
       const res = await api.post('/payments/create-order', {
         items: activeItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
         sellerId: activeSellerId,
-        deliveryAddress: address,
+        deliveryAddress: {
+          fullName: (address.fullName || '').trim(),
+          name: (address.fullName || '').trim(),
+          phone: (address.phone || '').trim(),
+          email: (address.email || '').trim(),
+          street: (address.street || '').trim(),
+          city: (address.city || '').trim(),
+          state: (address.state || '').trim(),
+          country: (address.country || '').trim(),
+          zipCode: (address.zipCode || '').trim(),
+        },
       });
 
       if (res.data?.success) {
