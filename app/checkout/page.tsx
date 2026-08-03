@@ -131,7 +131,7 @@ export default function CheckoutScreen() {
       // Create Razorpay Order
       const res = await api.post('/payments/create-order', {
         items: activeItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-        sellerId: activeSellerId,
+        sellerId: (activeSellerId && activeSellerId !== 'unknown') ? activeSellerId : undefined,
         deliveryAddress: {
           fullName: (address.fullName || '').trim(),
           name: (address.fullName || '').trim(),
