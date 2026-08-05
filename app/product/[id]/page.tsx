@@ -18,8 +18,10 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  Send,
-  Upload
+  AlertCircle,
+  Truck,
+  Upload,
+  Send
 } from 'lucide-react';
 import { getProductImageUrl, getSellerImageUrl } from '../../../lib/image';
 
@@ -379,21 +381,35 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               </div>
             )}
 
+            {/* Out of Stock Banner */}
+            {!isJobOrService && Number(product.stock ?? 0) <= 0 && (
+              <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl flex items-center gap-2 font-bold text-xs">
+                <AlertCircle size={18} className="shrink-0 text-rose-600" />
+                <span>{t('This item is currently Out of Stock and cannot be purchased.')}</span>
+              </div>
+            )}
+
             {/* Product Actions */}
             {!isJobOrService ? (
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={handleAddToCart}
-                  className="py-3.5 rounded-2xl border-2 border-primary bg-white hover:bg-primary/5 text-primary font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  disabled={Number(product.stock ?? 0) <= 0}
+                  className={`py-3.5 rounded-2xl border-2 border-primary bg-white text-primary font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                    Number(product.stock ?? 0) <= 0 ? 'opacity-50 cursor-not-allowed bg-slate-100 border-slate-200 text-slate-400' : 'hover:bg-primary/5 cursor-pointer'
+                  }`}
                 >
                   <ShoppingCart size={18} />
-                  <span>{t('Add to Cart')}</span>
+                  <span>{Number(product.stock ?? 0) <= 0 ? t('Out of Stock') : t('Add to Cart')}</span>
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="py-3.5 rounded-2xl bg-primary hover:bg-primary-dark text-white font-bold text-sm shadow-md shadow-primary/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  disabled={Number(product.stock ?? 0) <= 0}
+                  className={`py-3.5 rounded-2xl font-bold text-sm shadow-md flex items-center justify-center gap-2 transition-all ${
+                    Number(product.stock ?? 0) <= 0 ? 'bg-slate-200 text-slate-400 opacity-60 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark text-white shadow-primary/20 cursor-pointer'
+                  }`}
                 >
-                  <span>{t('Buy Now')}</span>
+                  <span>{Number(product.stock ?? 0) <= 0 ? t('Out of Stock') : t('Buy Now')}</span>
                 </button>
               </div>
             ) : (

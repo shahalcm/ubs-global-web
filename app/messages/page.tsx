@@ -298,19 +298,38 @@ function MessagesContent() {
                   </div>
                 ) : messages.length > 0 ? (
                   messages.map((msg, idx) => {
-                    const isOwn = msg.senderId === user?._id;
+                    const msgSenderId = typeof msg.senderId === 'object' ? msg.senderId?._id : msg.senderId;
+                    const isOwn = msgSenderId && user?._id && msgSenderId.toString() === user._id.toString();
+                    const isBot = msg.isBot || msg.senderType === 'bot';
                     const date = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const messageText = msg.text || msg.content || '';
+
+                    if (isBot) {
+                      return (
+                        <div key={msg._id || msg.id || idx} className="flex justify-start">
+                          <div className="max-w-xs md:max-w-md bg-blue-50 border border-blue-100 text-blue-900 rounded-2xl rounded-tl-none p-3.5 space-y-1 shadow-xs">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className="text-xs">🤖</span>
+                              <span className="font-bold text-[11px] text-blue-950">{msg.senderName || 'UBS Assistant'}</span>
+                              <span className="px-1.5 py-0.5 rounded-md bg-blue-900 text-white text-[9px] font-extrabold uppercase">AI</span>
+                            </div>
+                            <p className="whitespace-pre-wrap text-xs sm:text-sm font-medium">{messageText}</p>
+                            <span className="block text-[9px] text-right font-semibold text-blue-400">{date}</span>
+                          </div>
+                        </div>
+                      );
+                    }
 
                     return (
                       <div key={msg._id || msg.id || idx} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                         <div
-                          className={`max-w-xs md:max-w-md rounded-2xl p-3.5 space-y-1 shadow-sm leading-relaxed text-xs sm:text-sm font-medium ${
+                          className={`max-w-xs md:max-w-md rounded-2xl p-3.5 space-y-1 shadow-xs leading-relaxed text-xs sm:text-sm font-medium ${
                             isOwn
-                              ? 'bg-primary text-white rounded-tr-none'
+                              ? 'bg-blue-900 text-white rounded-tr-none'
                               : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
                           }`}
                         >
-                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                          <p className="whitespace-pre-wrap">{messageText}</p>
                           <span className={`block text-[9px] text-right font-semibold ${isOwn ? 'text-white/60' : 'text-slate-400'}`}>
                             {date}
                           </span>

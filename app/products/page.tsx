@@ -244,6 +244,11 @@ function ProductsContent() {
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
+                  {Number(item.stock ?? 0) <= 0 && (
+                    <span className="absolute top-2 left-2 px-2.5 py-1 rounded-lg bg-rose-600/90 text-[10px] font-bold text-white uppercase tracking-wider shadow-md">
+                      {t('Out of Stock')}
+                    </span>
+                  )}
                   {item.sellerId?.shopName && (
                     <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-slate-900/70 backdrop-blur-sm text-[9px] font-bold text-white uppercase tracking-wider">
                       {item.sellerId.shopName}
@@ -265,16 +270,22 @@ function ProductsContent() {
                   ) && (
                     <div className="pt-2 flex justify-between items-center">
                       <span className="font-extrabold text-primary text-base">${item.price}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart(item);
-                          alert(t('Added to cart!'));
-                        }}
-                        className="px-2.5 py-1.5 rounded-lg bg-primary/5 hover:bg-primary text-primary hover:text-white text-xs font-bold transition-all border border-primary/5 cursor-pointer"
-                      >
-                        {t('Add')}
-                      </button>
+                      {Number(item.stock ?? 0) > 0 ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(item);
+                            alert(t('Added to cart!'));
+                          }}
+                          className="px-2.5 py-1.5 rounded-lg bg-primary/5 hover:bg-primary text-primary hover:text-white text-xs font-bold transition-all border border-primary/5 cursor-pointer"
+                        >
+                          {t('Add')}
+                        </button>
+                      ) : (
+                        <span className="px-2 py-1 rounded-lg bg-rose-50 text-rose-600 text-[10px] font-bold">
+                          {t('Out of Stock')}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
