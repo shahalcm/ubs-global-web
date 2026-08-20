@@ -19,7 +19,8 @@ import {
   Menu,
   X,
   MapPin,
-  Settings
+  Settings,
+  Store
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -84,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocation }) => {
                 className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 hover:bg-slate-100 hover:border-slate-200 transition-all text-xs font-semibold text-primary cursor-pointer"
               >
                 <MapPin size={14} className="text-accent" />
-                <span className="max-w-[160px] truncate">
+                <span className="max-w-40 truncate">
                   {user?.location?.city
                     ? `${user.location.city}, ${user.location.country}`
                     : t('Set Location')}
@@ -117,6 +118,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocation }) => {
 
           {/* Actions & Utilities */}
           <div className="flex items-center gap-3">
+            {/* Become a Seller Button */}
+            <Link
+              href="/seller"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-linear-to-r from-[#0B4DFF] to-[#1DA1FF] hover:from-[#083ecf] hover:to-[#1891e6] text-white text-xs font-bold shadow-md shadow-blue-500/20 hover:scale-[1.02] transition-all"
+            >
+              <Store size={15} />
+              <span>{user?.role === 'seller' ? 'Seller Hub' : 'Become a Seller'}</span>
+            </Link>
+
             {/* Cart Button */}
             {isAuthenticated && (
               <Link
@@ -196,6 +206,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocation }) => {
                           </span>
                         )}
                       </div>
+
+                      <Link
+                        href="/seller"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0B4DFF] font-semibold hover:bg-blue-50 transition-colors"
+                      >
+                        <Store size={16} className="text-[#0B4DFF]" />
+                        <span>{user?.role === 'seller' ? 'Seller Dashboard' : 'Become a Seller'}</span>
+                      </Link>
 
                       <Link
                         href="/profile"
@@ -286,6 +305,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocation }) => {
               </Link>
             );
           })}
+
+          <Link
+            href="/seller"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-linear-to-r from-[#0B4DFF] to-[#1DA1FF] text-white font-bold text-sm shadow-md mt-2"
+          >
+            <Store size={18} />
+            <span>{user?.role === 'seller' ? 'Seller Hub' : 'Become a Seller'}</span>
+          </Link>
 
           {!isAuthenticated && (
             <Link

@@ -69,8 +69,8 @@ function OTPContent() {
       await api.post('/auth/verify-otp', { phone, otp: otpString });
 
       try {
-        // 2. Attempt login
-        const loginRes = await api.post('/auth/login', { phone, otp: otpString });
+        // 2. Attempt login using phone (recent OTP verification session)
+        const loginRes = await api.post('/auth/login', { phone });
         if (loginRes.data && loginRes.data.success) {
           const { user, token } = loginRes.data;
           await performLocalLogin(user, token);
@@ -80,8 +80,10 @@ function OTPContent() {
             router.push('/role-select');
           } else if (user.role === 'buyer') {
             router.push('/home');
+          } else if (user.role === 'seller') {
+            router.push('/seller/dashboard');
           } else {
-            router.push('/seller-download');
+            router.push('/home');
           }
         }
       } catch (loginError: any) {

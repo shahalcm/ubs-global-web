@@ -119,14 +119,23 @@ export default function OrderTrackingPage({ params }: OrderTrackingPageProps) {
 
   if (!order) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
-        <p className="font-semibold text-slate-600">{t('Order not found.')}</p>
-        <button
-          onClick={() => router.push('/orders')}
-          className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold"
-        >
-          {t('Back to Orders')}
-        </button>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4 p-6 text-center">
+        <AlertCircle size={48} className="text-rose-500" />
+        <p className="font-extrabold text-slate-800 text-lg">{errorMsg || t('Order tracking unavailable.')}</p>
+        <div className="flex gap-3">
+          <button
+            onClick={loadOrderTracking}
+            className="px-5 py-2.5 bg-primary text-white rounded-xl text-xs font-bold shadow-sm hover:bg-primary/90 transition cursor-pointer"
+          >
+            {t('Retry')}
+          </button>
+          <button
+            onClick={() => router.push('/orders')}
+            className="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-300 transition cursor-pointer"
+          >
+            {t('Back to Orders')}
+          </button>
+        </div>
       </div>
     );
   }
@@ -174,6 +183,43 @@ export default function OrderTrackingPage({ params }: OrderTrackingPageProps) {
               </p>
             </div>
           )}
+
+          {/* Courier Information & Document Download links */}
+          <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Courier Partner</p>
+                <p className="font-extrabold text-slate-800 text-sm">{order.courierName || 'Shiprocket Express Logistics'}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">AWB / Tracking Number</p>
+                <p className="font-mono font-bold text-primary text-sm">{order.awbCode || order.trackingNumber || 'Pending Assignment'}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-200/60">
+              {order.invoiceUrl && (
+                <a
+                  href={order.invoiceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 bg-primary text-white rounded-xl text-xs font-bold hover:bg-primary/90 transition flex items-center gap-1.5"
+                >
+                  📄 Download Invoice PDF
+                </a>
+              )}
+              {order.labelUrl && (
+                <a
+                  href={order.labelUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 bg-teal-600 text-white rounded-xl text-xs font-bold hover:bg-teal-700 transition flex items-center gap-1.5"
+                >
+                  🏷️ Download Shipping Label
+                </a>
+              )}
+            </div>
+          </div>
 
           {/* Timeline steps */}
           {order.orderStatus !== 'cancelled' ? (
