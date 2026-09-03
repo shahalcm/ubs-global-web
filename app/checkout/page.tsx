@@ -12,7 +12,7 @@ import { Loader2, ArrowLeft, MapPin, ClipboardList, CheckCircle2, Landmark } fro
 export default function CheckoutScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { items, clearCart } = useCart();
 
   const [address, setAddress] = useState({
@@ -42,6 +42,13 @@ export default function CheckoutScreen() {
   const activeSellerId = sellerIds[0] || '';
   const activeItems = groupedItems[activeSellerId] || [];
 
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login?redirect=/checkout');
+    }
+  }, [authLoading, isAuthenticated, router]);
+
   useEffect(() => {
     if (user) {
       setAddress((prev) => ({
@@ -63,6 +70,7 @@ export default function CheckoutScreen() {
     }
 
     const fetchPastAddress = async () => {
+      if (!isAuthenticated) return;
       try {
         const res = await api.get('/orders/my-orders');
         if (res.data?.orders && res.data.orders.length > 0) {
@@ -76,7 +84,7 @@ export default function CheckoutScreen() {
       }
     };
     fetchPastAddress();
-  }, [items, router]);
+  }, [items, router, isAuthenticated]);
 
   const handleAutofillPastAddress = () => {
     if (pastAddress) {

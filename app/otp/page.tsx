@@ -75,13 +75,14 @@ function OTPContent() {
           const { user, token } = loginRes.data;
           await performLocalLogin(user, token);
 
-          // Check role setup
-          if (!user.role) {
-            router.push('/role-select');
+          // Check role setup & seller status
+          const isSeller = Boolean(loginRes.data.isSeller || user.role === 'seller');
+          if (isSeller) {
+            router.push('/seller/dashboard');
           } else if (user.role === 'buyer') {
             router.push('/home');
-          } else if (user.role === 'seller') {
-            router.push('/seller/dashboard');
+          } else if (!user.role) {
+            router.push('/role-select');
           } else {
             router.push('/home');
           }

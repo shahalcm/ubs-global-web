@@ -6,7 +6,7 @@ import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 
 export default function SellerMessagesPage() {
-  const { user } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [rooms, setRooms] = useState<any[]>([]);
   const [activeRoom, setActiveRoom] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -15,6 +15,11 @@ export default function SellerMessagesPage() {
   const [loadingMsgs, setLoadingMsgs] = useState(false);
 
   useEffect(() => {
+    if (authLoading || !isAuthenticated) {
+      if (!authLoading) setLoadingRooms(false);
+      return;
+    }
+
     async function loadChatRooms() {
       try {
         setLoadingRooms(true);
@@ -32,7 +37,7 @@ export default function SellerMessagesPage() {
       }
     }
     loadChatRooms();
-  }, []);
+  }, [authLoading, isAuthenticated]);
 
   useEffect(() => {
     if (!activeRoom) return;

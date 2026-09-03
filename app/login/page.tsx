@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
 import { Loader2, Phone, Lock, Eye, EyeOff, AlertCircle, ShieldCheck, Mail } from 'lucide-react';
 
@@ -24,6 +26,7 @@ const COUNTRIES = [
 export default function LoginScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { login: performLocalLogin } = useAuth();
 
   // Mode: 'otp' | 'password'
   const [loginMode, setLoginMode] = useState<'otp' | 'password'>('otp');
@@ -35,6 +38,16 @@ export default function LoginScreen() {
   const [showPicker, setShowPicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isDeletedNotice, setIsDeletedNotice] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('deleted') === 'true') {
+        setIsDeletedNotice(true);
+      }
+    }
+  }, []);
 
   // Forgot Password Modal State
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -92,10 +105,9 @@ export default function LoginScreen() {
       const res = await api.post('/auth/login', { phone: fullPhone, password });
 
       if (res.data?.success && res.data?.token) {
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
+        await performLocalLogin(res.data.user, res.data.token);
 
-        if (res.data.user?.role === 'seller') {
+        if (res.data.isSeller || res.data.user?.role === 'seller') {
           router.replace('/seller/dashboard');
         } else if (res.data.user?.role === 'buyer') {
           router.replace('/home');
@@ -205,11 +217,10 @@ export default function LoginScreen() {
       });
 
       if (res.data?.success && res.data?.token) {
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
+        await performLocalLogin(res.data.user, res.data.token);
         setShowForgotModal(false);
 
-        if (res.data.user?.role === 'seller') {
+        if (res.data.isSeller || res.data.user?.role === 'seller') {
           router.replace('/seller/dashboard');
         } else if (res.data.user?.role === 'buyer') {
           router.replace('/home');
@@ -242,6 +253,13 @@ export default function LoginScreen() {
             {t('Sign in to manage your global trade')}
           </p>
         </div>
+
+        {isDeletedNotice && (
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-start gap-2.5 animate-in fade-in duration-200">
+            <ShieldCheck size={16} className="shrink-0 mt-0.5 text-emerald-600" />
+            <span>{t('Your account has been deleted successfully.')}</span>
+          </div>
+        )}
 
         {/* Tab Switcher */}
         <div className="flex bg-slate-100 p-1.5 rounded-2xl mb-6">
@@ -470,6 +488,20 @@ export default function LoginScreen() {
             </button>
           </form>
         )}
+
+        {/* Don't have an account? Sign Up */}
+        <div className="mt-6 text-center">
+          <p className="text-xs text-slate-500 font-medium">
+            {t("Don't have an account?")}{' '}
+            <Link
+              href="/signup"
+              className="font-bold text-blue-600 hover:text-blue-700 hover:underline transition-all inline-flex items-center gap-1 cursor-pointer"
+            >
+              <span>{t('Sign Up')}</span>
+              <span aria-hidden="true">&rarr;</span>
+            </Link>
+          </p>
+        </div>
 
         {/* Footer Navigation Links */}
         <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col items-center gap-3 text-xs text-slate-500">

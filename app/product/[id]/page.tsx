@@ -32,7 +32,7 @@ interface ProductDetailPageProps {
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { id } = use(params);
 
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
   const { addToCart } = useCart();
@@ -70,7 +70,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       const [prodRes, reviewsRes, wishlistRes] = await Promise.all([
         api.get(`/products/${id}`),
         api.get(`/reviews/product/${id}`).catch(() => null),
-        api.get('/users/wishlist').catch(() => null),
+        isAuthenticated ? api.get('/wishlist').catch(() => null) : Promise.resolve(null),
       ]);
 
       if (prodRes.data?.product) {
@@ -81,16 +81,19 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         setReviews(reviewsRes.data.reviews);
       }
 
-      if (wishlistRes?.data?.wishlist) {
-        const wishIds = wishlistRes.data.wishlist.map((w: any) => w._id || w.id);
-        setIsWishlisted(wishIds.includes(id));
+      if (wishlistRes) {
+        const wishlistItems = wishlistRes?.data?.products || wishlistRes?.data?.wishlist;
+        if (Array.isArray(wishlistItems)) {
+          const wishIds = wishlistItems.map((w: any) => w?.productId?._id || w?.productId || w?._id || w?.id);
+          setIsWishlisted(wishIds.includes(id));
+        }
       }
     } catch (err) {
       console.error('Error loading product details:', err);
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, isAuthenticated]);
 
   useEffect(() => {
     loadProductData();
@@ -111,13 +114,13 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       return;
     }
     try {
-      const res = await api.post(`/users/wishlist/${id}`);
+      const res = await api.post(`/wishlist/toggle/${id}`);
       if (res.data) {
-        setIsWishlisted(res.data.isWishlisted);
-        alert(res.data.message || t('Wishlist updated'));
+        setIsWishlisted(Boolean(res.data.isWishlisted));
+        alert(res.data.message || (res.data.isWishlisted ? t('Added to wishlist') : t('Removed from wishlist')));
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error toggling wishlist:', err);
     }
   };
 
@@ -324,7 +327,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 {t(product.category?.name || product.category)}
               </span>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight leading-tight">
-                {product.title}
+                {product.translations?.[language]?.title || t(product.title) || product.title}
               </h1>
 
               {/* Rating and Sales details */}
@@ -356,7 +359,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
             {/* Description Preview */}
             <p className="text-slate-500 text-xs sm:text-sm leading-relaxed border-t border-b border-slate-100 py-4">
-              {product.description}
+              {product.translations?.[language]?.description || t(product.description) || product.description}
             </p>
 
             {/* Quantity selector */}

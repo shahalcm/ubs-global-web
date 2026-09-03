@@ -66,12 +66,13 @@ interface SellerContextType {
 const SellerContext = createContext<SellerContextType | undefined>(undefined);
 
 export const SellerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadProfile = useCallback(async (): Promise<SellerProfile | null> => {
+    if (authLoading) return null;
     if (!isAuthenticated) {
       setSeller(null);
       setLoading(false);
@@ -97,11 +98,13 @@ export const SellerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [authLoading, isAuthenticated]);
 
   useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
+    if (!authLoading) {
+      loadProfile();
+    }
+  }, [authLoading, loadProfile]);
 
   const updateProfile = async (data: Partial<SellerProfile>): Promise<boolean> => {
     try {

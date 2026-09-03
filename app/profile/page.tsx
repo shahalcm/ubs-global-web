@@ -6,6 +6,7 @@ import { useTranslation } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
 import { Navbar } from '../../components/Navbar';
+import { DeleteAccountModal } from '../../components/DeleteAccountModal';
 import {
   Loader2,
   User as UserIcon,
@@ -21,7 +22,8 @@ import {
 export default function ProfileScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { user, updateUser, logout } = useAuth();
+  const { user, updateUser, logout, isAuthenticated, loading: authLoading } = useAuth();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Profile fields
   const [name, setName] = useState(user?.name || '');
@@ -35,10 +37,15 @@ export default function ProfileScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [updatingPassword, setUpdatingPassword] = useState(false);
 
-
-
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Guard: Only see profile after login
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login?redirect=/profile');
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   useEffect(() => {
     if (user) {
@@ -114,22 +121,19 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleGDPRPurge = async () => {
-    if (!confirm(t('WARNING: This will permanently delete your account and trade records. This action is irreversible. Continue?'))) return;
-    try {
-      const res = await api.delete('/users/delete-account');
-      if (res.data?.success) {
-        alert(t('Your account has been deleted. Logging you out.'));
-        await logout();
-        router.push('/login');
-      }
-    } catch (err) {
-      console.error(err);
-      alert(t('Failed to delete account.'));
-    }
-  };
-
-
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div className="flex flex-col min-h-screen bg-slate-50/50">
+        <Navbar />
+        <div className="flex-1 flex flex-col items-center justify-center py-24 gap-3">
+          <Loader2 className="animate-spin text-primary" size={36} />
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            {t('Verifying session...')}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50/50">
@@ -294,7 +298,8 @@ export default function ProfileScreen() {
                 </button>
 
                 <button
-                  onClick={handleGDPRPurge}
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
                   className="w-full flex items-center justify-start gap-2.5 p-3 rounded-2xl hover:bg-rose-50 border border-rose-100/50 text-left text-xs font-bold text-rose-600 transition-colors cursor-pointer"
                 >
                   <Trash2 size={16} className="text-rose-500" />
@@ -332,7 +337,11 @@ export default function ProfileScreen() {
         </div>
       </main>
 
-
+      {/* Rebuilt Delete Account Modal */}
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

@@ -1,0 +1,33 @@
+export const WORLD_COUNTRIES = [
+  { iso: 'US', name: 'United States', code: '+1', flag: '🇺🇸', isPopular: true, lang: 'en', minLen: 10, maxLen: 10 },
+  { iso: 'GB', name: 'United Kingdom', code: '+44', flag: '🇬🇧', isPopular: true, lang: 'en', minLen: 10, maxLen: 10 },
+  { iso: 'IN', name: 'India', code: '+91', flag: '🇮🇳', isPopular: true, lang: 'hi', minLen: 10, maxLen: 10 },
+  { iso: 'AE', name: 'United Arab Emirates', code: '+971', flag: '🇦🇪', isPopular: true, lang: 'ar', minLen: 9, maxLen: 9 },
+  { iso: 'SA', name: 'Saudi Arabia', code: '+966', flag: '🇸🇦', isPopular: true, lang: 'ar', minLen: 9, maxLen: 9 },
+  { iso: 'QA', name: 'Qatar', code: '+974', flag: '🇶🇦', isPopular: true, lang: 'ar', minLen: 8, maxLen: 8 },
+  { iso: 'KW', name: 'Kuwait', code: '+965', flag: '🇰🇼', isPopular: true, lang: 'ar', minLen: 8, maxLen: 8 },
+  { iso: 'OM', name: 'Oman', code: '+968', flag: '🇴🇲', isPopular: true, lang: 'ar', minLen: 8, maxLen: 8 },
+  { iso: 'BH', name: 'Bahrain', code: '+973', flag: '🇧🇭', isPopular: true, lang: 'ar', minLen: 8, maxLen: 8 },
+  { iso: 'PK', name: 'Pakistan', code: '+92', flag: '🇵🇰', isPopular: true, lang: 'ur', minLen: 10, maxLen: 10 },
+  { iso: 'BD', name: 'Bangladesh', code: '+880', flag: '🇧🇩', isPopular: true, lang: 'bn', minLen: 10, maxLen: 10 },
+  { iso: 'MY', name: 'Malaysia', code: '+60', flag: '🇲🇾', isPopular: true, lang: 'en', minLen: 9, maxLen: 10 },
+  { iso: 'SG', name: 'Singapore', code: '+65', flag: '🇸🇬', isPopular: true, lang: 'en', minLen: 8, maxLen: 8 },
+  { iso: 'DE', name: 'Germany', code: '+49', flag: '🇩🇪', isPopular: true, lang: 'de', minLen: 10, maxLen: 11 },
+  { iso: 'FR', name: 'France', code: '+33', flag: '🇫🇷', isPopular: true, lang: 'fr', minLen: 9, maxLen: 9 },
+  { iso: 'CA', name: 'Canada', code: '+1', flag: '🇨🇦', isPopular: true, lang: 'en', minLen: 10, maxLen: 10 },
+  { iso: 'AU', name: 'Australia', code: '+61', flag: '🇦🇺', isPopular: true, lang: 'en', minLen: 9, maxLen: 9 },
+  { iso: 'KR', name: 'South Korea', code: '+82', flag: '🇰🇷', lang: 'ko', minLen: 9, maxLen: 10 },
+  { iso: 'JP', name: 'Japan', code: '+81', flag: '🇯🇵', lang: 'ja', minLen: 10, maxLen: 10 },
+  { iso: 'CN', name: 'China', code: '+86', flag: '🇨🇳', lang: 'zh', minLen: 11, maxLen: 11 },
+  { iso: 'BR', name: 'Brazil', code: '+55', flag: '🇧🇷', lang: 'pt', minLen: 10, maxLen: 11 },
+  { iso: 'RU', name: 'Russia', code: '+7', flag: '🇷🇺', lang: 'ru', minLen: 10, maxLen: 10 },
+  { iso: 'IT', name: 'Italy', code: '+39', flag: '🇮🇹', lang: 'it', minLen: 10, maxLen: 10 },
+  { iso: 'ES', name: 'Spain', code: '+34', flag: '🇪🇸', lang: 'es', minLen: 9, maxLen: 9 },
+  { iso: 'NL', name: 'Netherlands', code: '+31', flag: '🇳🇱', lang: 'nl', minLen: 9, maxLen: 9 },
+  { iso: 'TR', name: 'Turkey', code: '+90', flag: '🇹🇷', lang: 'tr', minLen: 10, maxLen: 10 },
+  { iso: 'ID', name: 'Indonesia', code: '+62', flag: '🇮🇩', lang: 'id', minLen: 9, maxLen: 12 },
+  { iso: 'TH', name: 'Thailand', code: '+66', flag: '🇹🇭', lang: 'th', minLen: 9, maxLen: 9 },
+  { iso: 'VN', name: 'Vietnam', code: '+84', flag: '🇻🇳', lang: 'vi', minLen: 9, maxLen: 10 }
+];
+
+export const POPULAR_COUNTRIES = WORLD_COUNTRIES.filter(c => c.isPopular);

@@ -13,7 +13,7 @@ function MessagesContent() {
   const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
 
   const urlRoomId = searchParams.get('roomId') || '';
 
@@ -38,8 +38,12 @@ function MessagesContent() {
     scrollToBottom();
   }, [messages]);
 
-  // Load chat rooms
+  // Load chat rooms (only when authenticated)
   const loadChatRooms = useCallback(async () => {
+    if (!isAuthenticated) {
+      setRoomsLoading(false);
+      return;
+    }
     try {
       const res = await api.get('/chat/my-rooms');
       if (res.data?.rooms) {
@@ -50,11 +54,17 @@ function MessagesContent() {
     } finally {
       setRoomsLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    loadChatRooms();
-  }, [loadChatRooms]);
+    if (!authLoading) {
+      if (isAuthenticated) {
+        loadChatRooms();
+      } else {
+        setRoomsLoading(false);
+      }
+    }
+  }, [authLoading, isAuthenticated, loadChatRooms]);
 
   // Handle active room updates
   useEffect(() => {
@@ -180,6 +190,33 @@ function MessagesContent() {
     if (img.startsWith('http')) return img;
     return `${process.env.NEXT_PUBLIC_SOCKET_URL || 'https://api.ubsglobalapp.com'}/${img}`;
   };
+
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="flex flex-col min-h-screen bg-slate-50/50">
+        <Navbar />
+        <main className="flex-1 max-w-md mx-auto w-full px-4 py-20 flex flex-col items-center justify-center text-center space-y-6">
+          <div className="w-20 h-20 rounded-3xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+            <MessageSquare size={36} />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+              {t('Sign in to view your messages')}
+            </h2>
+            <p className="text-xs text-slate-500 max-w-sm">
+              {t('Connect with verified suppliers, exporters, and buyers from across the world.')}
+            </p>
+          </div>
+          <button
+            onClick={() => router.push('/login?redirect=/messages')}
+            className="px-6 py-3 rounded-2xl bg-primary hover:bg-primary-dark text-white font-bold text-xs shadow-md shadow-primary/25 flex items-center gap-2 transition-all cursor-pointer hover:scale-[1.01]"
+          >
+            <span>{t('Sign In to Continue')}</span>
+          </button>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-slate-50">

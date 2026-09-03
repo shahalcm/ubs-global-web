@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
 import { Navbar } from '../../components/Navbar';
 import { Loader2, ClipboardList, Clock, Truck, ShieldAlert, ArrowRight, CornerDownLeft } from 'lucide-react';
@@ -11,11 +12,18 @@ import { getProductImageUrl } from '../../lib/image';
 export default function OrdersScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
 
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
     const fetchOrders = async () => {
       try {
         const res = await api.get('/orders/my-orders');
@@ -29,7 +37,7 @@ export default function OrdersScreen() {
       }
     };
     fetchOrders();
-  }, []);
+  }, [authLoading, isAuthenticated]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -62,7 +70,28 @@ export default function OrdersScreen() {
           <p className="text-slate-400 text-xs mt-1 font-medium">{t('Track and manage your global trade purchases')}</p>
         </div>
 
-        {loading ? (
+        {!isAuthenticated ? (
+          <div className="max-w-md mx-auto py-16 text-center space-y-6">
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+              <ClipboardList size={36} />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-xl font-black text-slate-800 tracking-tight">
+                {t('Sign in to view your orders')}
+              </h2>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                {t('Track shipping updates, download invoices, and manage past purchases.')}
+              </p>
+            </div>
+            <button
+              onClick={() => router.push('/login?redirect=/orders')}
+              className="px-6 py-3 rounded-2xl bg-primary hover:bg-primary-dark text-white font-bold text-xs shadow-md shadow-primary/25 flex items-center gap-2 mx-auto transition-all cursor-pointer hover:scale-[1.01]"
+            >
+              <span>{t('Sign In to Continue')}</span>
+              <ArrowRight size={14} />
+            </button>
+          </div>
+        ) : loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <Loader2 className="animate-spin text-primary" size={40} />
             <span className="text-sm font-semibold text-slate-500">{t('Loading orders...')}</span>

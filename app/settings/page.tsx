@@ -6,16 +6,18 @@ import { useTranslation } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
 import { Navbar } from '../../components/Navbar';
-import { Settings, Globe, Shield, HelpCircle, Mail, MessageSquare, Send, Loader2 } from 'lucide-react';
+import { DeleteAccountModal } from '../../components/DeleteAccountModal';
+import { Settings, Globe, Shield, HelpCircle, Mail, MessageSquare, Send, Loader2, Trash2, ShieldAlert } from 'lucide-react';
 
 export default function SettingsScreen() {
   const { t, language, changeLanguage } = useTranslation();
   const router = useRouter();
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, isAuthenticated } = useAuth();
 
   // Settings states
   const [dataConsent, setDataConsent] = useState(user?.location ? true : false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Help Ticket Form
   const [ticketSubject, setTicketSubject] = useState('');
@@ -154,6 +156,31 @@ export default function SettingsScreen() {
                 </label>
               </div>
             </div>
+
+            {/* Danger Zone: Account Deletion */}
+            {isAuthenticated && (
+              <div className="bg-white border border-rose-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+                <h3 className="font-bold text-rose-600 text-sm border-b border-rose-50 pb-3 flex items-center gap-2">
+                  <ShieldAlert size={18} className="text-rose-500" />
+                  <span>{t('Account Management & Deletion')}</span>
+                </h3>
+
+                <p className="text-slate-500 text-xs leading-relaxed">
+                  {t('Permanently remove your account profile, personal data, and chat records in accordance with GDPR and data privacy rights.')}
+                </p>
+
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteModal(true)}
+                    className="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100/60 text-rose-600 text-xs font-bold transition-colors cursor-pointer flex items-center gap-2"
+                  >
+                    <Trash2 size={15} />
+                    <span>{t('Delete Account')}</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Help Support Ticket Column */}
@@ -206,6 +233,12 @@ export default function SettingsScreen() {
           </div>
         </div>
       </main>
+
+      {/* Delete Account Modal */}
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }
