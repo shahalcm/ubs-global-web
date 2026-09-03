@@ -247,7 +247,7 @@ function SignupContent() {
   return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-slate-900 px-4 py-12 sm:px-6 lg:px-8 relative">
       {/* Background Gradients */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-800/30 via-slate-900 to-slate-950 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] from-blue-800/30 via-slate-900 to-slate-950 pointer-events-none" />
 
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 border border-slate-100 relative z-10 animate-in fade-in zoom-in-95 duration-200">
         {/* Brand Header */}

@@ -234,7 +234,7 @@ export default function HomeScreen() {
           <CheckCircle2 className="text-emerald-400" size={18} />
           <div className="text-xs">
             <span className="font-bold">{t('Added to cart:')}</span>{' '}
-            <span className="text-slate-300 truncate max-w-[200px] inline-block align-bottom">{cartToast}</span>
+            <span className="text-slate-300 truncate max-w-50 inline-block align-bottom">{cartToast}</span>
           </div>
           <Link href="/cart" className="ml-2 font-black text-blue-400 hover:text-blue-300 text-xs underline underline-offset-2">
             {t('View Cart')} &rarr;
@@ -246,7 +246,7 @@ export default function HomeScreen() {
       <section className="relative overflow-hidden bg-slate-950 text-white pt-8 pb-16 sm:pb-20 border-b border-slate-800/80">
         {/* Ambient Glows */}
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-10 right-0 w-[500px] h-[500px] bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-10 right-0 w-125 h-125 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
@@ -652,7 +652,7 @@ export default function HomeScreen() {
                         {hasSeller ? (
                           <span className="px-2.5 py-1 rounded-xl bg-slate-950/80 backdrop-blur-md text-[10px] font-bold text-white flex items-center gap-1 shadow-sm">
                             <ShieldCheck size={12} className="text-emerald-400" />
-                            <span className="truncate max-w-[120px]">{product.sellerId.shopName}</span>
+                            <span className="truncate max-w-30">{product.sellerId.shopName}</span>
                           </span>
                         ) : (
                           <span />
