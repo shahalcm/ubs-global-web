@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
@@ -23,9 +23,11 @@ const COUNTRIES = [
   { code: '+33', flag: '🇫🇷', name: 'FR' },
 ];
 
-export default function LoginScreen() {
+function LoginForm() {
   const { t } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect') || '';
   const { login: performLocalLogin } = useAuth();
 
   // Mode: 'otp' | 'password'
@@ -76,9 +78,10 @@ export default function LoginScreen() {
     try {
       const fullPhone = selectedCountry.code + phone.trim();
       await api.post('/auth/send-otp', { phone: fullPhone });
-      router.push(`/otp?phone=${encodeURIComponent(fullPhone)}`);
+      const otpUrl = `/otp?phone=${encodeURIComponent(fullPhone)}${redirectParam ? `&redirect=${encodeURIComponent(redirectParam)}` : ''}`;
+      router.push(otpUrl);
     } catch (err: any) {
-      console.error('Send OTP error:', err);
+      console.warn('Send OTP notice:', err?.response?.data?.message || err?.message);
       setErrorMsg(err.response?.data?.message || t('Failed to send OTP. Please try again.'));
     } finally {
       setLoading(false);
@@ -107,7 +110,9 @@ export default function LoginScreen() {
       if (res.data?.success && res.data?.token) {
         await performLocalLogin(res.data.user, res.data.token);
 
-        if (res.data.isSeller || res.data.user?.role === 'seller') {
+        if (redirectParam && redirectParam.startsWith('/')) {
+          router.replace(redirectParam);
+        } else if (res.data.isSeller || res.data.user?.role === 'seller') {
           router.replace('/seller/dashboard');
         } else if (res.data.user?.role === 'buyer') {
           router.replace('/home');
@@ -118,7 +123,7 @@ export default function LoginScreen() {
         setErrorMsg(res.data?.message || t('Incorrect password. Please try again.'));
       }
     } catch (err: any) {
-      console.error('Password login error:', err);
+      console.warn('Password login notice:', err?.response?.data?.message || err?.message);
       setErrorMsg(err.response?.data?.message || t('Incorrect password. Please enter correct password.'));
     } finally {
       setLoading(false);
@@ -159,7 +164,7 @@ export default function LoginScreen() {
         setForgotErrorMsg(res.data?.message || t('No account found with this phone number'));
       }
     } catch (err: any) {
-      console.error('Forgot password send OTP error:', err);
+      console.warn('Forgot password send OTP notice:', err?.response?.data?.message || err?.message);
       setForgotErrorMsg(err.response?.data?.message || t('No registered account found with this phone number.'));
     } finally {
       setForgotLoading(false);
@@ -186,7 +191,7 @@ export default function LoginScreen() {
         setForgotErrorMsg(res.data?.message || t('Invalid or expired OTP'));
       }
     } catch (err: any) {
-      console.error('Verify OTP error:', err);
+      console.warn('Verify OTP notice:', err?.response?.data?.message || err?.message);
       setForgotErrorMsg(err.response?.data?.message || t('Invalid or expired OTP'));
     } finally {
       setForgotLoading(false);
@@ -220,7 +225,9 @@ export default function LoginScreen() {
         await performLocalLogin(res.data.user, res.data.token);
         setShowForgotModal(false);
 
-        if (res.data.isSeller || res.data.user?.role === 'seller') {
+        if (redirectParam && redirectParam.startsWith('/')) {
+          router.replace(redirectParam);
+        } else if (res.data.isSeller || res.data.user?.role === 'seller') {
           router.replace('/seller/dashboard');
         } else if (res.data.user?.role === 'buyer') {
           router.replace('/home');
@@ -231,7 +238,7 @@ export default function LoginScreen() {
         setForgotErrorMsg(res.data?.message || t('Failed to reset password. Please try again.'));
       }
     } catch (err: any) {
-      console.error('Reset password error:', err);
+      console.warn('Reset password notice:', err?.response?.data?.message || err?.message);
       setForgotErrorMsg(err.response?.data?.message || err.message || t('Failed to reset password'));
     } finally {
       setForgotLoading(false);
@@ -699,5 +706,19 @@ export default function LoginScreen() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LoginScreen() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-slate-900">
+          <Loader2 className="animate-spin text-blue-500" size={32} />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -14,6 +14,7 @@ function OTPContent() {
   const { login: performLocalLogin } = useAuth();
 
   const phoneParam = searchParams.get('phone') || '';
+  const redirectParam = searchParams.get('redirect') || '';
   const phone = phoneParam.replace(/ /g, '+');
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -77,7 +78,9 @@ function OTPContent() {
 
           // Check role setup & seller status
           const isSeller = Boolean(loginRes.data.isSeller || user.role === 'seller');
-          if (isSeller) {
+          if (redirectParam && redirectParam.startsWith('/')) {
+            router.push(redirectParam);
+          } else if (isSeller) {
             router.push('/seller/dashboard');
           } else if (user.role === 'buyer') {
             router.push('/home');
@@ -90,13 +93,13 @@ function OTPContent() {
       } catch (loginError: any) {
         // If user not found (404), route to complete profile
         if (loginError.response?.status === 404) {
-          router.push(`/complete-profile?phone=${encodeURIComponent(phone)}`);
+          router.push(`/complete-profile?phone=${encodeURIComponent(phone)}${redirectParam ? `&redirect=${encodeURIComponent(redirectParam)}` : ''}`);
         } else {
           throw loginError;
         }
       }
     } catch (err: any) {
-      console.error('OTP Verification Error:', err);
+      console.warn('OTP Verification notice:', err?.response?.data?.message || err?.message);
       setErrorMsg(err.response?.data?.message || t('Invalid OTP code or verification failed.'));
     } finally {
       setLoading(false);
@@ -112,9 +115,9 @@ function OTPContent() {
 
     try {
       await api.post('/auth/send-otp', { phone });
-    } catch (err) {
-      console.error('Failed to resend OTP:', err);
-      setErrorMsg(t('Failed to resend OTP.'));
+    } catch (err: any) {
+      console.warn('Failed to resend OTP:', err?.response?.data?.message || err?.message);
+      setErrorMsg(err?.response?.data?.message || t('Failed to resend OTP.'));
     }
   };
 

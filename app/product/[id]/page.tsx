@@ -62,10 +62,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const [applyCoverLetter, setApplyCoverLetter] = useState('');
   const [selectedCV, setSelectedCV] = useState<File | null>(null);
   const [submittingApplication, setSubmittingApplication] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const loadProductData = useCallback(async () => {
     if (!id) return;
     setLoading(true);
+    setLoadError(null);
     try {
       const [prodRes, reviewsRes, wishlistRes] = await Promise.all([
         api.get(`/products/${id}`),
@@ -73,8 +75,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         isAuthenticated ? api.get('/wishlist').catch(() => null) : Promise.resolve(null),
       ]);
 
-      if (prodRes.data?.product) {
+      if (prodRes?.data?.product) {
         setProduct(prodRes.data.product);
+      } else if (prodRes?.data && !prodRes.data.product) {
+        setProduct(prodRes.data);
       }
 
       if (reviewsRes?.data?.reviews) {
@@ -88,8 +92,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           setIsWishlisted(wishIds.includes(id));
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading product details:', err);
+      setLoadError(err?.response?.data?.message || err?.message || 'Failed to load product details');
     } finally {
       setLoading(false);
     }
@@ -125,22 +130,18 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   };
 
   const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
     if (!product) return;
     addToCart(product, quantity);
     alert(t('Added to cart!'));
   };
 
   const handleBuyNow = () => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
     if (!product) return;
     addToCart(product, quantity);
+    if (!isAuthenticated) {
+      router.push('/login?redirect=/checkout');
+      return;
+    }
     router.push('/checkout');
   };
 
@@ -246,6 +247,32 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="animate-spin text-primary" size={32} />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4 p-6 text-center">
+        <div className="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 mb-1">
+          <AlertCircle size={28} />
+        </div>
+        <h3 className="text-base font-bold text-slate-800">{t('Unable to load product')}</h3>
+        <p className="text-xs text-slate-500 max-w-sm">{loadError}</p>
+        <div className="flex items-center gap-3 mt-2">
+          <button
+            onClick={() => loadProductData()}
+            className="px-5 py-2.5 bg-[#0B4DFF] hover:bg-[#093ecf] text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
+          >
+            {t('Try Again')}
+          </button>
+          <button
+            onClick={() => router.push('/home')}
+            className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          >
+            {t('Go Home')}
+          </button>
+        </div>
       </div>
     );
   }

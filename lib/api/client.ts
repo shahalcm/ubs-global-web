@@ -2,7 +2,11 @@ import axios, { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } 
 
 let BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.ubsglobalapp.com/api';
 
-if (BASE_URL) {
+// In browser environment, use same-origin '/api' proxy (configured via Next.js rewrites)
+// This eliminates browser CORS preflight overhead, avoids cross-origin CORP blocks, and guarantees network stability
+if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FORCE_DIRECT_API !== 'true') {
+  BASE_URL = '/api';
+} else if (BASE_URL) {
   BASE_URL = BASE_URL.replace(/\/+$/, '');
   if (!BASE_URL.endsWith('/api')) {
     BASE_URL += '/api';
@@ -22,8 +26,8 @@ export const apiClient: AxiosInstance = axios.create({
   },
 });
 
-const MAX_RETRIES = 3;
-const RETRY_DELAY_BASE = 1000;
+const MAX_RETRIES = 2;
+const RETRY_DELAY_BASE = 600;
 
 // Centralized Request Interceptor
 apiClient.interceptors.request.use(

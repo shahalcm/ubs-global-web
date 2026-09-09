@@ -2,20 +2,34 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface CartItem {
+export interface CartItem {
   productId: string;
   name: string;
   image: string;
   price: number;
   sellerId: string;
+  sellerName?: string;
   quantity: number;
+  shippingFee?: number;
+  freeShipping?: boolean;
 }
 
 interface CartContextType {
   items: CartItem[];
   total: number;
   itemCount: number;
-  addToCart: (product: { _id: string; title: string; images: string[]; price: number; sellerId: string }, quantity?: number) => void;
+  addToCart: (
+    product: {
+      _id: string;
+      title: string;
+      images: string[];
+      price: number;
+      sellerId?: any;
+      shippingFee?: number;
+      freeShipping?: boolean;
+    },
+    quantity?: number
+  ) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -31,7 +45,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const storedCart = localStorage.getItem('cart');
         if (storedCart) {
-          setItems(JSON.parse(storedCart));
+          const parsed = JSON.parse(storedCart);
+          // Sanitize sellerId in stored cart items if any was stored as [object Object]
+          const sanitized = (parsed || []).map((item: any) => {
+            let sId = item.sellerId;
+            if (typeof sId === 'object' && sId !== null) {
+              sId = sId._id || sId.id || '';
+            } else if (typeof sId === 'string' && sId.includes('[object')) {
+              sId = '';
+            }
+            return {
+              ...item,
+              sellerId: String(sId || ''),
+            };
+          });
+          setItems(sanitized);
         }
       } catch (err) {
         console.error('Failed to load cart:', err);
@@ -48,13 +76,42 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const addToCart = (product: { _id: string; title: string; images: string[]; price: number; sellerId: string }, quantity = 1) => {
+  const addToCart = (
+    product: {
+      _id: string;
+      title: string;
+      images: string[];
+      price: number;
+      sellerId?: any;
+      shippingFee?: number;
+      freeShipping?: boolean;
+    },
+    quantity = 1
+  ) => {
     const existing = items.find((i) => i.productId === product._id);
     let newItems: CartItem[];
 
+    const rawSeller = product.sellerId;
+    let sId = '';
+    let sName = '';
+
+    if (typeof rawSeller === 'object' && rawSeller !== null) {
+      sId = String(rawSeller._id || rawSeller.id || '');
+      sName = String(rawSeller.shopName || rawSeller.ownerName || '');
+    } else if (typeof rawSeller === 'string') {
+      sId = rawSeller.includes('[object') ? '' : rawSeller;
+    }
+
     if (existing) {
       newItems = items.map((i) =>
-        i.productId === product._id ? { ...i, quantity: i.quantity + quantity } : i
+        i.productId === product._id
+          ? {
+              ...i,
+              quantity: i.quantity + quantity,
+              sellerId: i.sellerId || sId,
+              sellerName: i.sellerName || sName,
+            }
+          : i
       );
     } else {
       newItems = [
@@ -64,7 +121,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: product.title,
           image: product.images?.[0] || '',
           price: product.price,
-          sellerId: product.sellerId,
+          sellerId: sId,
+          sellerName: sName,
+          shippingFee: product.shippingFee,
+          freeShipping: product.freeShipping,
           quantity,
         },
       ];
