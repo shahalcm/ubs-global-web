@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -53,7 +53,7 @@ interface SellerGroup {
   shippingFee: number;
 }
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -1201,5 +1201,22 @@ export default function CheckoutPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="flex flex-col items-center">
+            <div className="w-10 h-10 border-3 border-[#0B4DFF] border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-3 text-xs font-semibold text-[#0A1A44]">Loading checkout...</p>
+          </div>
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -166,7 +166,7 @@ const initialForm = {
   shippingFee: '',
 };
 
-export default function SellerProductsPage() {
+function SellerProductsContent() {
   const { seller } = useSeller();
   const searchParams = useSearchParams();
   const actionParam = searchParams.get('action');
@@ -1296,6 +1296,21 @@ export default function SellerProductsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SellerProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="py-16 text-center">
+          <div className="w-8 h-8 border-3 border-[#0B4DFF] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-xs text-slate-500 font-medium mt-3">Loading products...</p>
+        </div>
+      }
+    >
+      <SellerProductsContent />
+    </Suspense>
   );
 }
 
