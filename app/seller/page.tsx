@@ -2,21 +2,27 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { useSeller } from '@/context/SellerContext';
 
 export default function SellerPage() {
   const router = useRouter();
-  const { seller, loading } = useSeller();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { seller, loading: sellerLoading } = useSeller();
 
   useEffect(() => {
-    if (!loading) {
+    if (!authLoading && !sellerLoading) {
+      if (!isAuthenticated) {
+        router.replace('/login?redirect=/seller/register');
+        return;
+      }
       if (seller && seller.registrationFeePaid) {
         router.replace('/seller/dashboard');
       } else {
         router.replace('/seller/register');
       }
     }
-  }, [seller, loading, router]);
+  }, [seller, sellerLoading, isAuthenticated, authLoading, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">

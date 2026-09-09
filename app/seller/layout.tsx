@@ -19,8 +19,12 @@ function SellerLayoutContent({ children }: { children: React.ReactNode }) {
   const isRegisterPage = pathname === '/seller/register';
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated && !isRegisterPage) {
-      router.push('/login?redirect=/seller/dashboard');
+    if (!authLoading && !isAuthenticated) {
+      if (isRegisterPage) {
+        router.push('/login?redirect=/seller/register');
+      } else {
+        router.push('/login?redirect=/seller/dashboard');
+      }
     }
   }, [authLoading, isAuthenticated, isRegisterPage, router]);
 

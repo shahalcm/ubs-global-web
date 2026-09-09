@@ -48,7 +48,7 @@ const COUNTRIES = [
 
 export default function SellerRegisterPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { seller, loading: sellerLoading, refreshSeller } = useSeller();
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -83,6 +83,17 @@ export default function SellerRegisterPage() {
     upiId: '',
   });
 
+  // Sync user details to form once authenticated
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        ownerName: prev.ownerName || user.name || '',
+        phone: prev.phone || user.phone || '',
+      }));
+    }
+  }, [user]);
+
   // Files
   const [shopLogoFile, setShopLogoFile] = useState<File | null>(null);
   const [shopLogoPreview, setShopLogoPreview] = useState<string | null>(null);
@@ -90,14 +101,20 @@ export default function SellerRegisterPage() {
   const [idProofPreview, setIdProofPreview] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login?redirect=/seller/register');
+      return;
+    }
     if (!sellerLoading && seller && seller.registrationFeePaid) {
       router.replace('/seller/dashboard');
     }
-  }, [seller, sellerLoading, router]);
+  }, [seller, sellerLoading, isAuthenticated, authLoading, router]);
 
   useEffect(() => {
-    loadRegistrationOffer();
-  }, []);
+    if (!authLoading && isAuthenticated) {
+      loadRegistrationOffer();
+    }
+  }, [authLoading, isAuthenticated]);
 
   const loadRegistrationOffer = async () => {
     try {

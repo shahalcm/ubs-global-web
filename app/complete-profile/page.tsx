@@ -15,6 +15,7 @@ function CompleteProfileContent() {
 
   const phoneParam = searchParams.get('phone') || '';
   const phone = phoneParam.replace(/ /g, '+');
+  const redirectParam = searchParams.get('redirect') || '';
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -115,7 +116,11 @@ function CompleteProfileContent() {
       if (res.data && res.data.success) {
         const { user, token } = res.data;
         await performLocalLogin(user, token);
-        router.push('/role-select');
+        if (redirectParam && redirectParam.startsWith('/')) {
+          router.push(redirectParam);
+        } else {
+          router.push('/role-select');
+        }
       }
     } catch (err: any) {
       console.error('Registration error:', err);

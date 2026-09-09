@@ -38,6 +38,7 @@ function SignupContent() {
   const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect') || '';
   const { login: performLogin } = useAuth();
 
   const [step, setStep] = useState<'phone' | 'otp' | 'routing'>('phone');
@@ -193,8 +194,12 @@ function SignupContent() {
         setStatusMsg(t('Welcome back! Logging into your account...'));
         await performLogin(userData, authToken);
 
-        // If they have a seller account, route directly to seller dashboard
-        if (isSellerAccount) {
+        // If redirectParam is specified, honor it first
+        if (redirectParam && redirectParam.startsWith('/')) {
+          setTimeout(() => {
+            router.replace(redirectParam);
+          }, 800);
+        } else if (isSellerAccount) {
           setTimeout(() => {
             router.replace('/seller/dashboard');
           }, 800);
@@ -213,7 +218,7 @@ function SignupContent() {
       // CASE B: USER HAS NO ACCOUNT -> ASK TO COMPLETE PROFILE
       setStatusMsg(t('Phone verified! Please complete your profile.'));
       setTimeout(() => {
-        router.replace(`/complete-profile?phone=${encodeURIComponent(fullPhoneNumber)}`);
+        router.replace(`/complete-profile?phone=${encodeURIComponent(fullPhoneNumber)}${redirectParam ? `&redirect=${encodeURIComponent(redirectParam)}` : ''}`);
       }, 700);
     } catch (err: any) {
       console.error('OTP Verification Error:', err);
@@ -454,7 +459,7 @@ function SignupContent() {
           <p className="text-xs text-slate-500 font-medium">
             {t('Already have an account?')}{' '}
             <Link
-              href="/login"
+              href={redirectParam ? `/login?redirect=${encodeURIComponent(redirectParam)}` : '/login'}
               className="font-bold text-blue-600 hover:text-blue-700 hover:underline transition-all inline-flex items-center gap-1"
             >
               <span>{t('Log In')}</span>

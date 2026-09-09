@@ -44,6 +44,23 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocation }) => {
     router.push('/login');
   };
 
+  const handleBecomeSellerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      router.push('/login?redirect=/seller/register');
+    } else if (user?.role === 'seller') {
+      router.push('/seller/dashboard');
+    } else {
+      router.push('/seller/register');
+    }
+  };
+
+  const sellerLinkHref = !isAuthenticated
+    ? '/login?redirect=/seller/register'
+    : user?.role === 'seller'
+    ? '/seller/dashboard'
+    : '/seller/register';
+
   const navLinks = [
     { href: '/home', label: 'Home', icon: Home },
     { href: '/products', label: 'Products', icon: ShoppingBag },
@@ -110,8 +127,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocation }) => {
           <div className="flex items-center gap-3">
             {/* Become a Seller Button */}
             <Link
-              href="/seller"
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-linear-to-r from-[#0B4DFF] to-[#1DA1FF] hover:from-[#083ecf] hover:to-[#1891e6] text-white text-xs font-bold shadow-md shadow-blue-500/20 hover:scale-[1.02] transition-all"
+              href={sellerLinkHref}
+              onClick={handleBecomeSellerClick}
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-linear-to-r from-[#0B4DFF] to-[#1DA1FF] hover:from-[#083ecf] hover:to-[#1891e6] text-white text-xs font-bold shadow-md shadow-blue-500/20 hover:scale-[1.02] transition-all cursor-pointer"
             >
               <Store size={15} />
               <span>{user?.role === 'seller' ? 'Seller Hub' : 'Become a Seller'}</span>
@@ -221,9 +239,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocation }) => {
                       </div>
 
                       <Link
-                        href="/seller"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0B4DFF] font-semibold hover:bg-blue-50 transition-colors"
+                        href={user?.role === 'seller' ? '/seller/dashboard' : '/seller/register'}
+                        onClick={(e) => {
+                          setProfileDropdownOpen(false);
+                          handleBecomeSellerClick(e);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0B4DFF] font-semibold hover:bg-blue-50 transition-colors cursor-pointer"
                       >
                         <Store size={16} className="text-[#0B4DFF]" />
                         <span>{user?.role === 'seller' ? 'Seller Dashboard' : 'Become a Seller'}</span>
@@ -320,9 +341,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocation }) => {
           })}
 
           <Link
-            href="/seller"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-linear-to-r from-[#0B4DFF] to-[#1DA1FF] text-white font-bold text-sm shadow-md mt-2"
+            href={sellerLinkHref}
+            onClick={(e) => {
+              setMobileMenuOpen(false);
+              handleBecomeSellerClick(e);
+            }}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-linear-to-r from-[#0B4DFF] to-[#1DA1FF] text-white font-bold text-sm shadow-md mt-2 cursor-pointer"
           >
             <Store size={18} />
             <span>{user?.role === 'seller' ? 'Seller Hub' : 'Become a Seller'}</span>
