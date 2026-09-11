@@ -87,6 +87,22 @@ function ProductsContent() {
     return getProductImageUrl(images && images[0]);
   };
 
+  const getCategoryEmoji = (name: string = '') => {
+    const n = name.toLowerCase();
+    if (n.includes('groc') || n.includes('spice') || n.includes('food')) return '🌾';
+    if (n.includes('kitchen') || n.includes('home')) return '🍳';
+    if (n.includes('fash') || n.includes('cloth') || n.includes('apparel')) return '👗';
+    if (n.includes('elect') || n.includes('tech')) return '⚡';
+    if (n.includes('mobil') || n.includes('phone')) return '📱';
+    if (n.includes('machin') || n.includes('tool')) return '⚙️';
+    if (n.includes('build') || n.includes('construct') || n.includes('steel')) return '🏗️';
+    if (n.includes('furn')) return '🛋️';
+    if (n.includes('cosmet') || n.includes('beauty')) return '✨';
+    if (n.includes('med') || n.includes('health')) return '💊';
+    if (n.includes('oil')) return '🫒';
+    return '📦';
+  };
+
   const handleResetFilters = () => {
     setSelectedCategory('');
     setSearchQuery('');
@@ -105,10 +121,10 @@ function ProductsContent() {
           <div>
             <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
               <Grid size={24} className="text-primary" />
-              <span>{t('All Products')}</span>
+              <span>{selectedCategory ? `${t(selectedCategory)}` : t('All Products')}</span>
             </h1>
             <p className="text-slate-400 text-xs mt-1 font-medium">
-              {products.length} {t('products found')}
+              {products.length} {t('products found')} {selectedCategory ? `${t('in')} ${selectedCategory}` : ''}
             </p>
           </div>
 
@@ -138,6 +154,72 @@ function ProductsContent() {
             </button>
           </div>
         </div>
+
+        {/* Horizontal Category Quick Filter Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedCategory('');
+              router.push('/products');
+            }}
+            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
+              !selectedCategory
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 scale-[1.02]'
+                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80 hover:border-slate-300'
+            }`}
+          >
+            <span>🛍️</span>
+            <span>{t('All Products')}</span>
+          </button>
+          {categories
+            .filter((c) => !['job portal', 'service portal', 'real estate'].includes((c.name || '').toLowerCase()))
+            .map((cat) => {
+              const isSelected =
+                selectedCategory.toLowerCase() === (cat.name || '').toLowerCase() ||
+                selectedCategory.toLowerCase() === (cat.slug || '').toLowerCase();
+              return (
+                <button
+                  key={cat._id || cat.id || cat.name}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(cat.name);
+                    router.push(`/products?category=${encodeURIComponent(cat.name)}`);
+                  }}
+                  className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
+                    isSelected
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 scale-[1.02]'
+                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80 hover:border-slate-300'
+                  }`}
+                >
+                  <span>{cat.icon || getCategoryEmoji(cat.name)}</span>
+                  <span>{t(cat.name)}</span>
+                </button>
+              );
+            })}
+        </div>
+
+        {/* Active Category Tag Indicator */}
+        {selectedCategory && (
+          <div className="flex items-center gap-2 pt-1">
+            <span className="text-xs text-slate-500 font-semibold">{t('Active category:')}</span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold shadow-2xs">
+              <span>{getCategoryEmoji(selectedCategory)}</span>
+              <span>{selectedCategory}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory('');
+                  router.push('/products');
+                }}
+                className="hover:text-blue-950 cursor-pointer ml-1 font-bold"
+                aria-label="Clear category"
+              >
+                ✕
+              </button>
+            </span>
+          </div>
+        )}
 
         {/* Collapsible Filters Bar */}
         {(showFilters || selectedCategory || minPrice || maxPrice) && (
@@ -293,19 +375,23 @@ function ProductsContent() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+          <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 bg-white rounded-3xl border border-slate-100 p-8 shadow-xs">
             <div className="p-4 bg-slate-100 rounded-full text-slate-400">
               <RefreshCw size={32} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-700 text-base">{t('No products found')}</h3>
-              <p className="text-slate-400 text-xs mt-1">{t('Try adjusting filters or searching for something else.')}</p>
+              <h3 className="font-bold text-slate-700 text-base">
+                {selectedCategory ? `${t('No products found in')} "${selectedCategory}"` : t('No products found')}
+              </h3>
+              <p className="text-slate-400 text-xs mt-1">
+                {t('Try browsing another category or resetting your active search filters.')}
+              </p>
             </div>
             <button
               onClick={handleResetFilters}
-              className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-all cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
             >
-              {t('Clear Filters')}
+              {t('Explore All Products')}
             </button>
           </div>
         )}

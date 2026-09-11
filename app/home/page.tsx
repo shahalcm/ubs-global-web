@@ -40,18 +40,18 @@ import {
 import { getProductImageUrl } from '../../lib/image';
 
 const CATEGORIES = [
-  { id: '1', name: 'Machinery', icon: '⚙️', count: '1,420 items', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&q=80', group: 'Industrial' },
-  { id: '2', name: 'Electronics', icon: '⚡', count: '3,850 items', image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=300&q=80', group: 'Tech' },
-  { id: '3', name: 'Building Materials', icon: '🏗️', count: '890 items', image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=300&q=80', group: 'Industrial' },
-  { id: '4', name: 'Real Estate', icon: '🏢', count: '640 properties', image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=300&q=80', group: 'Property' },
-  { id: '5', name: 'Fashion & Apparel', icon: '👗', count: '5,120 items', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&q=80', group: 'Consumer' },
-  { id: '6', name: 'Spare Parts', icon: '🔧', count: '2,300 items', image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=300&q=80', group: 'Industrial' },
-  { id: '7', name: 'Mobiles & Gadgets', icon: '📱', count: '4,100 items', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&q=80', group: 'Tech' },
-  { id: '8', name: 'Furniture & Decor', icon: '🛋️', count: '1,780 items', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&q=80', group: 'Consumer' },
-  { id: '9', name: 'Cosmetics & Beauty', icon: '✨', count: '2,900 items', image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=300&q=80', group: 'Consumer' },
-  { id: '10', name: 'Perfumes & Fragrances', icon: '🌸', count: '980 items', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=300&q=80', group: 'Consumer' },
-  { id: '11', name: 'Grocery & Commodities', icon: '🌾', count: '3,200 items', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&q=80', group: 'Consumer' },
-  { id: '12', name: 'Medicines & Health', icon: '💊', count: '1,150 items', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&q=80', group: 'Industrial' },
+  { id: '1', name: 'Grocery', displayName: 'Grocery & Spices', icon: '🌾', count: '35+ items', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80', group: 'Consumer' },
+  { id: '2', name: 'Home & Kitchen', displayName: 'Home & Kitchen', icon: '🍳', count: '14+ items', image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=400&q=80', group: 'Consumer' },
+  { id: '3', name: 'Fashion', displayName: 'Fashion & Apparel', icon: '👗', count: '9+ items', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&q=80', group: 'Consumer' },
+  { id: '4', name: 'Electronics', displayName: 'Electronics & Tech', icon: '⚡', count: '3+ items', image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&q=80', group: 'Tech' },
+  { id: '5', name: 'Mobiles', displayName: 'Mobiles & Gadgets', icon: '📱', count: 'Smartphones', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80', group: 'Tech' },
+  { id: '6', name: 'Machinery', displayName: 'Industrial Machinery', icon: '⚙️', count: '3+ items', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&q=80', group: 'Industrial' },
+  { id: '7', name: 'Building Materials', displayName: 'Building Materials', icon: '🏗️', count: '2+ items', image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=80', group: 'Industrial' },
+  { id: '8', name: 'Furniture', displayName: 'Furniture & Decor', icon: '🛋️', count: '2+ items', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80', group: 'Consumer' },
+  { id: '9', name: 'Cosmetics', displayName: 'Cosmetics & Beauty', icon: '✨', count: '2+ items', image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&q=80', group: 'Consumer' },
+  { id: '10', name: 'Medicines', displayName: 'Medicines & Health', icon: '💊', count: '2+ items', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80', group: 'Industrial' },
+  { id: '11', name: 'Oils', displayName: 'Pure & Edible Oils', icon: '🫒', count: '2+ items', image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80', group: 'Consumer' },
+  { id: '12', name: 'Real Estate', displayName: 'Real Estate Hub', icon: '🏢', count: 'Commercial & Plots', image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&q=80', group: 'Property' },
 ];
 
 const STATIC_BANNERS = [
@@ -577,7 +577,7 @@ export default function HomeScreen() {
                 <div className="aspect-4/3 w-full rounded-2xl overflow-hidden bg-slate-100 mb-3 relative">
                   <img
                     src={cat.image}
-                    alt={cat.name}
+                    alt={cat.displayName || cat.name}
                     className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
                     onError={(e) => {
                       (e.target as any).src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&q=80';
@@ -590,7 +590,7 @@ export default function HomeScreen() {
 
                 <div className="space-y-0.5">
                   <h3 className="text-xs font-black text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">
-                    {t(cat.name)}
+                    {t(cat.displayName || cat.name)}
                   </h3>
                   <p className="text-[11px] font-semibold text-slate-400">
                     {cat.count || t('Verified Suppliers')}
